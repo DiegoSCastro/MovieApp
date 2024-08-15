@@ -1,10 +1,10 @@
 package br.com.movieapp
 
-import MainScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import br.com.movieapp.core.presentation.MainScreen
 
 import br.com.movieapp.ui.theme.MovieAppTheme
 import dagger.hilt.android.AndroidEntryPoint

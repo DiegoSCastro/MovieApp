@@ -2,31 +2,34 @@ package br.com.movieapp.core.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import br.com.movieapp.core.domain.model.Movie
-import br.com.movieapp.movie_popular_feature.data.mapper.toMovie
-import br.com.movieapp.movie_popular_feature.domain.source.MoviePopularRemoteDataSource
+import br.com.movieapp.core.domain.model.MovieSearch
+import br.com.movieapp.search_movie_feature.data.mapper.toMovieSearch
+import br.com.movieapp.search_movie_feature.domain.source.MovieSearchRemoteDataSource
 import coil.network.HttpException
-import okio.IOException
+import java.io.IOException
 
-class MoviePagingSource(
-    private val remoteDataSource: MoviePopularRemoteDataSource
-) : PagingSource<Int, Movie>() {
-    override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
+class MovieSearchPagingSource(
+    private val query: String,
+    private val remoteDataSource: MovieSearchRemoteDataSource,
+) : PagingSource<Int, MovieSearch>() {
+    override fun getRefreshKey(state: PagingState<Int, MovieSearch>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(LIMIT) ?: anchorPage?.nextKey?.minus(LIMIT)
-
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieSearch> {
         return try {
             val pageNumber = params.key ?: 1
-            val response = remoteDataSource.getPopularMovies(page = pageNumber)
+            val response = remoteDataSource.getSearchMovies(
+                page = pageNumber,
+                query = query
+            )
             val movies = response.results
 
             LoadResult.Page(
-                data = movies.toMovie(),
+                data = movies.toMovieSearch(),
                 prevKey = if (pageNumber == 1) null else pageNumber - 1,
                 nextKey = if (movies.isEmpty()) null else pageNumber + 1,
             )
